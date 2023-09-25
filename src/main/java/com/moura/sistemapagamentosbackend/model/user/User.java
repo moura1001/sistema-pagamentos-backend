@@ -33,4 +33,12 @@ public class User {
 
     private BigDecimal balance;
 
+    public User(String name, String document, String email, UserType type, BigDecimal balance) {
+        this.name = name;
+        this.document = document;
+        this.email = email;
+        this.type = type;
+        this.balance = balance;
+    }
+
 }
