@@ -41,8 +41,15 @@ public class TransactionService {
     public void createTransaction(TransactionDTO transaction) throws RuntimeException {
         List<User> users = userService.findAllUsersIn(List.of(transaction.getPayerId(), transaction.getPayeeId()));
 
-        User payer = users.get(0);
-        User payee = users.get(1);
+        User payer = null;
+        User payee = null;
+        for (User user : users) {
+            if (transaction.getPayerId().equals(user.getId())) {
+                payer = user;
+            } else {
+                payee = user;
+            }
+        }
 
         validateTransaction(payer, transaction.getValue());
 

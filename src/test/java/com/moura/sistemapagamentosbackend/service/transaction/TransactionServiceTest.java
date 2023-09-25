@@ -5,7 +5,9 @@ import com.moura.sistemapagamentosbackend.model.user.User;
 import com.moura.sistemapagamentosbackend.model.user.UserType;
 import com.moura.sistemapagamentosbackend.service.user.UserService;
 import com.moura.sistemapagamentosbackend.util.exceptions.transaction.TransactionAuthorizeException;
+import com.moura.sistemapagamentosbackend.util.exceptions.transaction.TransactionBalanceException;
 import com.moura.sistemapagamentosbackend.util.exceptions.transaction.TransactionException;
+import com.moura.sistemapagamentosbackend.util.exceptions.transaction.TransactionTypeException;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +37,6 @@ class TransactionServiceTest {
 
     @BeforeAll
     void init() {
-        Mockito.doReturn(true).when(transactionService).authorizeTransaction();
-
         List<User> saveUsers = List.of(
                 new User("user1", "12345678909", "email1@email.com", UserType.COMMON, new BigDecimal(10)),
                 new User("user2", "98765432190", "email2@email.com", UserType.COMMON, new BigDecimal(10)),
@@ -45,6 +45,11 @@ class TransactionServiceTest {
         userService.saveAllUsers(saveUsers);
 
         updateUsersRef();
+    }
+
+    @BeforeEach
+    void setUp() {
+        Mockito.doReturn(true).when(transactionService).authorizeTransaction();
     }
 
     @AfterEach
@@ -68,9 +73,15 @@ class TransactionServiceTest {
     void updateUsersRef() {
         List<User> getUsers = userService.findAllUsersIn(List.of((long)1, (long)2, (long)3));
 
-        user1Common = getUsers.get(0);
-        user2Common = getUsers.get(1);
-        user3Merchant = getUsers.get(2);
+        for (User user : getUsers) {
+            if (user.getId() == (long) 1) {
+                user1Common = user;
+            } else if (user.getId() == (long) 2) {
+                user2Common = user;
+            } else if (user.getId() == (long) 3) {
+                user3Merchant = user;
+            }
+        }
     }
 
     @Test
@@ -96,5 +107,43 @@ class TransactionServiceTest {
 
         assertThat(user1Common.getBalance()).isEqualTo(new BigDecimal(10).setScale(2));
         assertThat(user2Common.getBalance()).isEqualTo(new BigDecimal(10).setScale(2));
+    }
+
+    @Test
+    void naoDeveRealizarTransacaoQuandoOSaldoEhInsuficiente() {
+        TransactionDTO transaction1 = new TransactionDTO(new BigDecimal(5), user1Common.getId(), user2Common.getId());
+        assertDoesNotThrow(() -> transactionService.createTransaction(transaction1));
+        updateUsersRef();
+        assertThat(user1Common.getBalance()).isEqualTo(new BigDecimal(5).setScale(2));
+        assertThat(user2Common.getBalance()).isEqualTo(new BigDecimal(15).setScale(2));
+
+        TransactionDTO transaction2 = new TransactionDTO(new BigDecimal(10), user1Common.getId(), user2Common.getId());
+        assertThrows(TransactionBalanceException.class, () -> transactionService.createTransaction(transaction2));
+
+        updateUsersRef();
+
+        assertThat(user1Common.getBalance()).isEqualTo(new BigDecimal(5).setScale(2));
+        assertThat(user2Common.getBalance()).isEqualTo(new BigDecimal(15).setScale(2));
+    }
+
+    @Test
+    void deveRealizarTransacaoComSucessoDeUmUsuarioComumParaUmLojista() {
+        TransactionDTO transaction = new TransactionDTO(new BigDecimal(10), user1Common.getId(), user3Merchant.getId());
+        assertDoesNotThrow(() -> transactionService.createTransaction(transaction));
+        updateUsersRef();
+
+        assertThat(user1Common.getBalance()).isEqualTo(new BigDecimal(0).setScale(2));
+        assertThat(user3Merchant.getBalance()).isEqualTo(new BigDecimal(60).setScale(2));
+    }
+
+    @Test
+    void naoDeveRealizarTransferenciasDeUsuariosLojistas() {
+        TransactionDTO transaction = new TransactionDTO(new BigDecimal(10), user3Merchant.getId(), user1Common.getId());
+        assertThrows(TransactionTypeException.class, () -> transactionService.createTransaction(transaction));
+
+        updateUsersRef();
+
+        assertThat(user1Common.getBalance()).isEqualTo(new BigDecimal(10).setScale(2));
+        assertThat(user3Merchant.getBalance()).isEqualTo(new BigDecimal(50).setScale(2));
     }
 }
