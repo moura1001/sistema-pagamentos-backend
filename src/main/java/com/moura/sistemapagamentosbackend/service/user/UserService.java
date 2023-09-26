@@ -3,7 +3,9 @@ package com.moura.sistemapagamentosbackend.service.user;
 import com.moura.sistemapagamentosbackend.model.user.User;
 import com.moura.sistemapagamentosbackend.util.exceptions.user.UserException;
 import com.moura.sistemapagamentosbackend.util.exceptions.user.UserNotFoundException;
+import com.moura.sistemapagamentosbackend.util.exceptions.user.UserPersistException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +28,36 @@ public class UserService {
         return users;
     }
 
-    public void saveAllUsers(List<User> users) {
-        repository.saveAll(users);
+    public List<User> getAllUsers() throws UserException {
+        try {
+            return repository.findAll();
+        } catch (RuntimeException e) {
+            throw new UserNotFoundException(e.getMessage());
+        }
+    }
+
+    public long countUsers() throws UserException {
+        try {
+            return repository.countById();
+        } catch (RuntimeException e) {
+            throw new UserNotFoundException(e.getMessage());
+        }
+    }
+
+    public void saveUser(User user) throws UserException {
+        this.saveAllUsers(List.of(user));
+    }
+
+    public void saveAllUsers(List<User> users) throws UserException {
+        try {
+            repository.saveAll(users);
+
+        } catch (RuntimeException e) {
+            if (e instanceof DataIntegrityViolationException) {
+                throw new UserPersistException("CPF/CNPJ e e-mails devem ser únicos no sistema");
+            }
+
+            throw new UserPersistException(e.getMessage());
+        }
     }
 }

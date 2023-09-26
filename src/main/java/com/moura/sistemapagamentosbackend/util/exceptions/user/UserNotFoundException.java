@@ -1,8 +1,6 @@
 package com.moura.sistemapagamentosbackend.util.exceptions.user;
 
-import com.moura.sistemapagamentosbackend.util.exceptions.transaction.TransactionException;
-
-public class UserNotFoundException extends TransactionException {
+public class UserNotFoundException extends UserException {
     public UserNotFoundException() {
         super("usuário não encontrado");
     }
