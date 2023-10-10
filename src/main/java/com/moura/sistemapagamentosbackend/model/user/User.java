@@ -41,4 +41,13 @@ public class User {
         this.balance = balance;
     }
 
+    public User(UserDTO user) {
+        this.name = user.getName();
+        this.document = user.getDocument();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.type = user.getType();
+        this.balance = user.getBalance();
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.moura.sistemapagamentosbackend.service.user;
 
 import com.moura.sistemapagamentosbackend.model.user.User;
+import com.moura.sistemapagamentosbackend.model.user.UserDTO;
 import com.moura.sistemapagamentosbackend.util.exceptions.user.UserException;
 import com.moura.sistemapagamentosbackend.util.exceptions.user.UserNotFoundException;
 import com.moura.sistemapagamentosbackend.util.exceptions.user.UserPersistException;
@@ -59,5 +60,11 @@ public class UserService {
 
             throw new UserPersistException(e.getMessage());
         }
+    }
+
+    public User createUser(UserDTO user) throws UserException {
+        User newUser = new User(user);
+        saveUser(newUser);
+        return newUser;
     }
 }
