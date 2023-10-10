@@ -23,7 +23,7 @@ public class UserService {
     public List<User> findAllUsersIn(List<Long> idList) throws UserException {
         List<User> users = repository.findUserByIdIn(idList);
         if (users.size() < idList.size()) {
-            throw new UserNotFoundException("usuário inválido encontrado na lista");
+            throw new UserNotFoundException();
         }
 
         return users;

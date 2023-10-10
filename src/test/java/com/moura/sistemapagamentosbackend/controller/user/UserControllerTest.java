@@ -195,7 +195,7 @@ class UserControllerTest {
     }
 
     @Test
-    public void deveRetornarStatus400QuandoForDadosDuplicados() {
+    public void deveRetornarStatus500QuandoForDadosDuplicados() {
         try {
             URI uri = new URI("http://localhost:8093/api/v1/users");
 
