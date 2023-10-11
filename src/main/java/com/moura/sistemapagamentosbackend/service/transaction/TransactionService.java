@@ -4,6 +4,7 @@ import com.moura.sistemapagamentosbackend.model.transaction.Transaction;
 import com.moura.sistemapagamentosbackend.model.transaction.TransactionDTO;
 import com.moura.sistemapagamentosbackend.model.user.User;
 import com.moura.sistemapagamentosbackend.model.user.UserType;
+import com.moura.sistemapagamentosbackend.service.notification.NotificationService;
 import com.moura.sistemapagamentosbackend.service.user.UserService;
 import com.moura.sistemapagamentosbackend.util.exceptions.transaction.TransactionAuthorizeException;
 import com.moura.sistemapagamentosbackend.util.exceptions.transaction.TransactionBalanceException;
@@ -33,6 +34,9 @@ public class TransactionService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -69,6 +73,9 @@ public class TransactionService {
 
         repository.save(newTransaction);
         userService.saveAllUsers(users);
+
+        notificationService.sendNotification(payer, "Transação realizada com sucesso");
+        notificationService.sendNotification(payee, "Transação realizada com sucesso");
     }
 
     private void validateTransaction(User payer, BigDecimal ammount) throws TransactionException {
@@ -87,7 +94,7 @@ public class TransactionService {
         try {
             response = restTemplate.getForEntity(AUTHORIZE_TRANSACTION_URL, Map.class);
         } catch (RuntimeException e) {
-            throw new TransactionAuthorizeException("serviço indisponível: " + e.getMessage());
+            throw new TransactionAuthorizeException("serviço de autorização indisponível: " + e.getMessage());
         }
 
         if (HttpStatus.OK.equals(response.getStatusCode())) {

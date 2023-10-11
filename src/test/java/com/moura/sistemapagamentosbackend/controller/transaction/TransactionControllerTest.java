@@ -3,6 +3,7 @@ package com.moura.sistemapagamentosbackend.controller.transaction;
 import com.moura.sistemapagamentosbackend.model.transaction.TransactionDTO;
 import com.moura.sistemapagamentosbackend.model.user.User;
 import com.moura.sistemapagamentosbackend.model.user.UserType;
+import com.moura.sistemapagamentosbackend.service.notification.NotificationService;
 import com.moura.sistemapagamentosbackend.service.transaction.TransactionService;
 import com.moura.sistemapagamentosbackend.service.user.UserService;
 import com.moura.sistemapagamentosbackend.util.exceptions.transaction.TransactionAuthorizeException;
@@ -36,6 +37,9 @@ class TransactionControllerTest {
     private TransactionService transactionService;
 
     @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
     private TestRestTemplate testRestTemplate;
 
     private User user1Common;
@@ -57,6 +61,7 @@ class TransactionControllerTest {
     @BeforeEach
     void setUp() {
         Mockito.doReturn(true).when(transactionService).authorizeTransaction();
+        Mockito.doNothing().when(notificationService).sendNotification(Mockito.any(User.class), Mockito.any(String.class));
     }
 
     @AfterEach
