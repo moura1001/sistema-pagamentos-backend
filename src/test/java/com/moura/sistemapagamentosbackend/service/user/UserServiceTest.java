@@ -10,6 +10,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,12 +21,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ContextConfiguration
 class UserServiceTest {
     @Autowired
     private UserService userService;
 
     @BeforeAll
     void init() {
+        userService.deleteAllUsers();
+
         List<User> saveUsers = List.of(
                 new User("user1", "12345678909", "email1@email.com", UserType.COMMON, new BigDecimal(10)),
                 new User("user2", "98765432190", "email2@email.com", UserType.COMMON, new BigDecimal(10)),

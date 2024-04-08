@@ -2,8 +2,10 @@ package com.moura.sistemapagamentosbackend.controller.user;
 
 import com.moura.sistemapagamentosbackend.model.user.User;
 import com.moura.sistemapagamentosbackend.model.user.UserType;
+import com.moura.sistemapagamentosbackend.service.transaction.TransactionService;
 import com.moura.sistemapagamentosbackend.service.user.UserService;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.net.URI;
 import java.util.LinkedHashMap;
@@ -23,13 +26,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ContextConfiguration
 class UserControllerTest {
 
     @Autowired
     private UserService userService;
 
     @Autowired
+    private TransactionService transactionService;
+
+    @Autowired
     private TestRestTemplate testRestTemplate;
+
+    @BeforeAll
+    void init() {
+        transactionService.deleteAllTransactions();
+        userService.deleteAllUsers();
+    }
 
     @Test
     public void deveRetornarStatus400QuandoDadosDoPayloadParaCriacaoDoUsuarioEstiveremIncorretos() {

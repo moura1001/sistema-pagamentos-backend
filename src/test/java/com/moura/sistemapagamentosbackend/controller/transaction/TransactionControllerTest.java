@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -28,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@ContextConfiguration
 class TransactionControllerTest {
 
     @Autowired
@@ -48,6 +50,9 @@ class TransactionControllerTest {
 
     @BeforeAll
     void init() {
+        transactionService.deleteAllTransactions();
+        userService.deleteAllUsers();
+
         List<User> saveUsers = List.of(
                 new User("user1", "12345678909", "email1@email.com", UserType.COMMON, new BigDecimal(10)),
                 new User("user2", "98765432190", "email2@email.com", UserType.COMMON, new BigDecimal(10)),
@@ -83,14 +88,14 @@ class TransactionControllerTest {
     }
 
     void updateUsersRef() {
-        List<User> getUsers = userService.findAllUsersIn(List.of((long)1, (long)2, (long)3));
+        List<User> getUsers = userService.getAllUsers();
 
         for (User user : getUsers) {
-            if (user.getId() == (long) 1) {
+            if ("user1".equals(user.getName())) {
                 user1Common = user;
-            } else if (user.getId() == (long) 2) {
+            } else if ("user2".equals(user.getName())) {
                 user2Common = user;
-            } else if (user.getId() == (long) 3) {
+            } else if ("user3".equals(user.getName())) {
                 user3Merchant = user;
             }
         }

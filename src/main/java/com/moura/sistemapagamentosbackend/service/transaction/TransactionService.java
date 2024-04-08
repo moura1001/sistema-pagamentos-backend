@@ -103,4 +103,8 @@ public class TransactionService {
             return  false;
         }
     }
+
+    public void deleteAllTransactions() {
+        repository.deleteAll();
+    }
 }
