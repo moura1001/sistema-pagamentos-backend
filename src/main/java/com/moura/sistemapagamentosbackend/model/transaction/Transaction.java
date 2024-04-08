@@ -3,7 +3,7 @@ package com.moura.sistemapagamentosbackend.model.transaction;
 import com.moura.sistemapagamentosbackend.model.user.User;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 

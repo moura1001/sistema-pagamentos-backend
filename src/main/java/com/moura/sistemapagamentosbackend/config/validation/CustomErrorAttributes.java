@@ -54,7 +54,7 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
 
     private void addStatus(Map<String, Object> errorAttributes, WebRequest requestAttributes) {
         Integer status = getAttribute(requestAttributes,
-                "javax.servlet.error.status_code");
+                "jakarta.servlet.error.status_code");
         if (status == null) {
             errorAttributes.put("status", 999);
             errorAttributes.put("error", "None");

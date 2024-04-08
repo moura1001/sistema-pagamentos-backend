@@ -67,4 +67,8 @@ public class UserService {
         saveUser(newUser);
         return newUser;
     }
+
+    public void deleteAllUsers() {
+        repository.deleteAll();
+    }
 }

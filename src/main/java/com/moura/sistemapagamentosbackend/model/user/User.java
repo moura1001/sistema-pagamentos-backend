@@ -2,7 +2,7 @@ package com.moura.sistemapagamentosbackend.model.user;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 
 @Entity(name = "users")
