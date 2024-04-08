@@ -1,0 +1,1 @@
+web: java -XX:+UnlockExperimentalVMOptions -XX:+UseContainerSupport $JAVA_OPTS -Dserver.port=$PORT -jar target/*.jar
